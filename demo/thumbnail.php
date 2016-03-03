@@ -1,0 +1,1 @@
+../bin/thumbnail.php
