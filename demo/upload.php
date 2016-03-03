@@ -7,6 +7,7 @@ echo "demo: upload.php";
 <form action="/openstore/api/upload.php" method="post"
 	enctype="multipart/form-data">
 <input type="file" name="file" /><br />
+<p><input type="checkbox" name="thumbnail">thumbnail</input><p>
 <p><input type="submit" /></p>
 </form>
 </body></html>

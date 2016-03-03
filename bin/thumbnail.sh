@@ -58,9 +58,8 @@ echo "CMD: $COMMAND" >&2
 $COMMAND
 if [ $? -eq 0 ]; then
 	echo "INFO: Done!" >&2
-	echo OK
+	echo $OUTPUT
 else
 	echo "ERROR: Failed to run the 'convert' command!" >&2
-	echo FAULT
 fi
 
