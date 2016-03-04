@@ -5,6 +5,5 @@
 <hr />
 
 <p><a href="upload.php">api:upload</a></p>
-<p><a href="download.php">api:download</a></p>
-<p><a href="delete.php">api:delete</a></p>
+<p><a href="getfile.php">api:getfile</a></p>
 </body></html>

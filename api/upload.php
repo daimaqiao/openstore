@@ -28,7 +28,7 @@ if(!$fileid) {
 	exit(1);
 }
 
-$thumbnailFlag= $_POST["thumbnail"];
+$thumbnailFlag= array_key_exists("thumbnail", $_POST)? $_POST["thumbnail"]: false;
 if($thumbnailFlag && checkImage($file)) {
 	if(($thumbnail= makeThumbnail($tmpname))) {
 		$prefix="-thumbnail";
