@@ -1,5 +1,6 @@
 <?php
 // api:upload.php
+// 1/2016.0305, BY shb.
 $result= array(
 	"category"	=> "api:upload",
 	"error"		=> "",
@@ -30,33 +31,37 @@ if(!$fileid) {
 
 $thumbnailFlag= array_key_exists("thumbnail", $_POST)? $_POST["thumbnail"]: false;
 if($thumbnailFlag && checkImage($file)) {
-	if(($thumbnail= makeThumbnail($tmpname))) {
+	if(($tmpthumbnail= makeThumbnail($tmpname))) {
 		$prefix="-thumbnail";
-		$fileid2= fastdfs_storage_upload_slave_by_filename1($thumbnail,
+		$thumbnail= fastdfs_storage_upload_slave_by_filename1($tmpthumbnail,
 			$fileid, $prefix, $extname, array(), $tracker, $storage);
-		if(!$fileid2) {
+		// delete the temp file
+		unlink($tmpthumbnail);
+		if(!$thumbnail) {
+			// the master file should be deleted
+			fastdfs_storage_delete_file1($fileid);
 			bad_request($result);
 			exit(1);
 		}
-		response_ok2($result, $fileid, $fileid2);
+		response_fileid_with_thumbnail($result, $fileid, $thumbnail);
 	} else {
 		bad_request($result);
 		exit(1);
 	}
 } else
-	response_ok($result, $fileid);
+	response_fileid($result, $fileid);
 // done
 
 
 /////////////////////////////////////// 
-// output a json of 'bad request'
-function response_ok($result, $ok) {
-	$result["result"]= $ok;
+// output a json of 'fileid'
+function response_fileid($result, $fileid) {
+	$result["result"]= $fileid;
 	echo json_encode($result, JSON_UNESCAPED_SLASHES);
 }
-function response_ok2($result, $ok, $ok2) {
-	$result["result"]= $ok;
-	$result["result2"]= $ok2;
+function response_fileid_with_thumbnail($result, $fileid, $thumbnail) {
+	$result["result"]= $fileid;
+	$result["thumbnail"]= $thumbnail;
 	echo json_encode($result, JSON_UNESCAPED_SLASHES);
 }
 
@@ -85,16 +90,14 @@ function getExtName1($name) {
 // return true if $file is a image file
 function checkImage($file) {
 	$type= $file["type"];
-	if($type == "image/jpeg" || $type == "image/pjgeg" ||
-		$type == "image/png" || $type == "image/gif")
-			return true;
+	if($type == "image/jpeg" || $type == "image/pjgeg" || $type == "image/png")
+		return true;
 
 	$ext= getExtName1($file["name"]);
 	switch(strtolower($ext)) {
 	case "jpg":
 	case "jpeg":
 	case "png":
-	case "gif":
 		return true;
 	}// switch
 
@@ -104,13 +107,25 @@ function checkImage($file) {
 /////////////////////////////////////// 
 // return true if ok
 function makeThumbnail($input_name, $output_name="") {
-	$root= $_SERVER["CONTEXT_DOCUMENT_ROOT"];
-	$tool= $root. "/bin/thumbnail.sh";
-	$command= $tool. " ". $input_name. " ". $output_name;
-	return exec($command);
+	$php= $_SERVER["SCRIPT_FILENAME"];
+	$path1= getDirectory($php);
+	$path2= getDirectory($path1);
+	if($path2) {
+		$tool= $path2. "/bin/thumbnail.sh";
+		$command= $tool. " ". $input_name. " ". $output_name;
+		return exec($command);
+	}
+	return "";
 }
 
-
+/////////////////////////////////////// 
+// return the directory
+function getDirectory($filepath) {
+	$pos= strrpos($filepath, "/");
+	if($pos)
+		return substr($filepath, 0, $pos);
+	return $filepath;
+}
 
 
 
