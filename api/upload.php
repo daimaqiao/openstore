@@ -1,6 +1,6 @@
 <?php
 // api:upload.php
-// 1/2016.0305, BY shb.
+// 1/2016.0305, BY daimaqiao.
 $result= array(
 	"category"	=> "api:upload",
 	"error"		=> "",

@@ -1,6 +1,6 @@
 #!/bin/sh
 # thumbnail.sh
-# 1/2016.0303, BY shb.
+# 1/2016.0303, BY daimaqiao.
 #
 # 使用imagemagick生成缩略图片
 # 缩略图片的尺寸不超过160x160，质量40，保持宽高比

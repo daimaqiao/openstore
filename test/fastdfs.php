@@ -30,9 +30,11 @@ if(!$serverStorage || !fastdfs_active_test($serverStorage)) {
 	exit(1);
 }
 
+$dir= dirname(__FILE__);
+
 // upload test
 //$storage["sock"]= $serverStorage["sock"];
-$fileinfo= fastdfs_storage_upload_by_filename("/home/shb/temp/sample_file.txt",
+$fileinfo= fastdfs_storage_upload_by_filename("$dir/sample_file.txt",
 	null, array(), null, $tracker, $storage);
 if(!$fileinfo) {
 	echo "ERROR: fastdfs_storage_upload_by_filename() failed!<br />";
@@ -56,7 +58,7 @@ echo "<br />";
 // test slave file
 $masterfilename= $remotefilename;
 $prefixname= "-copy";
-$sfinfo= fastdfs_storage_upload_slave_by_filename("/home/shb/temp/sample_file2.txt",
+$sfinfo= fastdfs_storage_upload_slave_by_filename("$dir/sample_file2.txt",
 	$groupname, $masterfilename, $prefixname);
 if(!$sfinfo) {
 	echo "ERROR: fastdfs_storage_upload_slave_by_filename() failed!<br />";

@@ -1,6 +1,8 @@
 <?php
-$command= "/home/shb/local/openstore/bin/thumbnail.sh /home/shb/local/openstore/bin/koala.jpg /tmp/koala-thumbnail.jpg";
+$dir= dirname(__FILE__);
+$command= "$dir/thumbnail.sh $dir/koala.jpg /tmp/koala-thumbnail.jpg";
+
 $result= exec($command);
-print "result: $result";
-echo "\n";
+print "result: $result\n";
+unlink("/tmp/koala-thumbnail.jpg");
 ?>

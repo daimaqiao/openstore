@@ -1,0 +1,3 @@
+This is a sample file.
+date
+Wed Mar 2 15:45:35 CST 2016
