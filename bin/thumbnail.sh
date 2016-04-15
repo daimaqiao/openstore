@@ -1,24 +1,37 @@
 #!/bin/sh
 # thumbnail.sh
-# 1/2016.0303, BY daimaqiao.
+# 2/2016.0415, BY daimaqiao.
 #
 # 使用imagemagick生成缩略图片
-# 缩略图片的尺寸不超过160x160，质量40，保持宽高比
+# 缩略图分类：
+# 	normal(300x300，保持比例)，质量20
+# 	avastar(60x60，等比裁减)，质量40
 
+TYPE_NORMAL="normal"
+TYPE_AVASTAR="avastar"
 THUMBNAIL_SUBFIX="-thumbnail"
-THUMBNAIL="-thumbnail 160x160"
-QUALITY="-quality 40"
+THUMBNAIL_NORMAL="-thumbnail 200x200"
+THUMBNAIL_AVASTAR="-thumbnail 60x60"
+QUALITY_NORMAL="-quality 30"
+QUALITY_AVASTAR="-quality 50"
 
 # 用法
 INPUT=$1
 OUTPUT=$2
+TYPE=$3
+CROP=""
 if [ -z "$INPUT" ]; then
 	echo "USAGE:" >&2
-	echo " " $0 "<original file>" "[<thumbnail file>]" >&2
+	echo " " $0 "<original file>" "[<thumbnail file>]" "[normal | avastar]" >&2
 	exit 1
 fi
 
+
 # 检查文件名
+if [ "$OUTPUT" = "$TYPE_NORMAL" ] || [ "$OUTPUT" = "$TYPE_AVASTAR" ]; then
+	TYPE=$OUTPUT
+	OUTPUT=""
+fi
 if [ -z "$OUTPUT" ]; then
 	FILE_MAIN=${INPUT%.*}
 	FILE_EXT=${INPUT##*.}
@@ -29,6 +42,13 @@ if [ -z "$OUTPUT" ]; then
 		OUTPUT=$FILE_MAIN$THUMBNAIL_SUBFIX$FILE_EXT
 	fi
 fi
+# 检查缩略图类型
+if [ "$TYPE" = "$TYPE_AVASTAR" ]; then
+	TYPE=$TYPE_AVASTAR
+else
+	TYPE=$TYPE_NORMAL
+fi
+
 
 # 检查imagemagick工具
 if [ -z $(which identify) ] || [ -z $(which convert) ]; then
@@ -53,7 +73,22 @@ if [ -z "$WIDTH" ] || [ -z "HEIGHT" ]; then
 fi
 
 # 生成缩略图片
-COMMAND="convert $INPUT $THUMBNAIL $QUALITY $OUTPUT"
+COMMAND=""
+if [ "$TYPE" = "$TYPE_AVASTAR" ]; then
+	# 头像图片要求宽高长度一致
+	CROP=""
+	if [ $WIDTH -gt $HEIGHT ]; then
+		CROP="-crop $HEIGHT"x"$HEIGHT+$((($WIDTH-$HEIGHT)/2))+0"
+	elif [ $WIDTH -lt $HEIGHT ]; then
+		CROP="-crop $WIDTH"x"$WIDTH+0+$((($HEIGHT-$WIDTH)/2))"
+	fi
+	COMMAND="convert $CROP $INPUT $THUMBNAIL_AVASTAR $QUALITY_AVASTAR $OUTPUT"
+elif [ "$TYPE" = "$TYPE_NORMAL" ]; then
+	COMMAND="convert $INPUT $THUMBNAIL_NORMAL $QUALITY_NORMAL $OUTPUT"
+else
+	echo "ERROR: bad type($TYPE)! [$TYPE_NORMAL | $TYPE_AVASTAR]" >&2
+	exit 1
+fi
 echo "CMD: $COMMAND" >&2
 $COMMAND
 if [ $? -eq 0 ]; then
@@ -62,4 +97,5 @@ if [ $? -eq 0 ]; then
 else
 	echo "ERROR: Failed to run the 'convert' command!" >&2
 fi
+
 
